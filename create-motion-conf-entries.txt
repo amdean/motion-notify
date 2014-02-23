@@ -1,0 +1,4 @@
+on_picture_save /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg %f 0
+on_movie_end /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg %f 1
+on_event_start /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg None 1
+
