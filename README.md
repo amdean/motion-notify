@@ -29,6 +29,11 @@ Create the folder in the Google Drive for the new account you created and then s
 Installation
 There's no automated installation yet so this is the current process
 
+Install Python Libraries
+sudo apt-get update
+sudo apt-get install python-pip
+pip install -U gdata
+
 Create a directory:
 sudo mkdir /etc/motion-notify
 
