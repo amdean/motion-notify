@@ -158,7 +158,7 @@ class MotionNotify:
             doc = uploader.UploadFile(uri, entry=gdata.data.GDEntry(title=atom.data.Title(text=os.path.basename(image_file.name))))
             
         else :
-            if media_file_path.endswith('swf'):
+            if media_file_path.endswith(('avi', 'flv', 'mov', 'mpg', 'swf')):
                 logger.info( 'Uploading video %s ' % media_file_path )
                 doc = gdata.docs.data.Resource(type='video', title=os.path.basename(media_file_path))
                 media = gdata.data.MediaSource()
