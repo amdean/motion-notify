@@ -21,18 +21,14 @@ Adding lots of devices that are only active when you're at home will reduce fals
 A later release will include improvements to not just check if a device is present but also to check if a device has been present in the last X number of minutes.
 It's highly recommended to configure your devices to use static IP's to prevent the IP addresses from changing.
 
-Google Drive setup
-Login to Google Drive and create a folder where images and video will be upload to (the supplied config file uses "CCTV" as folder the name but you can change that if needed)
-Hint - if you're concerned about storing your password for your Google account in the clear in the config text file there is a solution. Create another Google account just for sending alerts.
-Create the folder in the Google Drive for the new account you created and then share that folder with your main Google account. That way you don't have to use the password for your main account.
 
 Installation
-There's no automated installation yet so this is the current process
 
 Install Python Libraries
 sudo apt-get update
 sudo apt-get install python-pip
-sudo pip install -U gdata
+sudo pip install PyDrive
+sudo apt-get install python-openssl
 
 Create a directory:
 sudo mkdir /etc/motion-notify
@@ -45,12 +41,37 @@ sudo chown motion.motion /var/tmp/motion-notify.log
 sudo chmod 664 /var/tmp/motion-notify.log
 
 
-Edit the config file and enter the following:
--Google account details into the GMail section of the config file
+Configurations
+
+Google Drive Config
+Google drive authentication is done using a service account via key authentication. The service account is given access only to the folder you specify in Google Drive.
+
+Login to Google Drive and create a folder where images and video will be upload to
+Enter the ID of the folder into the "folder" field in the config file (if the URL of the folder is https://drive.google.com/drive/folders/0Bzt4FJyYHjdYhnA3cECdTFW3RWM then the ID is 0Bzt4FJyYHjdYhnA3cECdTFW3RWM.
+Next you need to get some account credentials from the Google Developers console - this will allow motion-notify to upload files to Google Drive.
+Go to https://console.developers.google.com/
+From the "Select a project" dropdown at the top of the page choose "Create a project"
+Enter "motion-notify" as the project name (or anything else that you want to call it)
+Once the project is created you'll be take to the project dashboard for that project.
+Go to APIs & auth > APIs > Drive API and click "Enable API"
+Go to APIs & auth > Credentials and choose "Create new Client ID" and select "Service Account" as the application type.
+You'll receive a download containing a JSON file.
+Generate a new P12 key for the service account you just created using the button underneath the details of the service account. Save this file in the /etc/motion-notify directory and rename it to cred.p12.
+The service account has an email address associated with it which will @developer.gserviceaccount.com. Copy that email address and enter it into the "service_user_email" field in the config file.
+You now need to allow the service account access to your Google Drive folder.
+    Go to the Google Drive folder where you want images and videos to be uploaded
+    Click on the share icon
+    Enter the email address of your service account and ensure that "Can edit" is selected.
+
+
+Email config
+Enter the following configuration for emails:
+-Google account details into the GMail section of the config file (this is just to send emails so you could setup another Google account just for sending if you're worried about storing your account password in the clear).
 -Email address to send alerts to
 -The URL of the folder you created in your Google account (just copy and paste it from the browser). This will be sent in the alert emails so that you can click through to the folder
--The name of the folder you created eg. CCTV
--The hours that you always want to recieve email alerts even when you're home
+
+Notification Config
+-The hours that you always want to receive email alerts even when you're home
 -Either enter IP addresses or MAC addresses (avoid using MAC addresses) which will be active when you're at home
 
 Change the permissions

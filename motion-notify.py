@@ -37,13 +37,12 @@ import os.path
 import sys
 import subprocess, time
 
-import gdata.data
-import gdata.docs.data
-import gdata.docs.client
 import ConfigParser
 import atom.data
 
 import logging.handlers, traceback
+
+from motionnotifygoogledriveupload import MotionNotifyGoogleUpload
 
 logger = logging.getLogger( 'MotionNotify' )
 hdlr = logging.handlers.RotatingFileHandler( '/var/tmp/motion-notify.log',
@@ -64,35 +63,30 @@ class MotionNotify:
     def __init__(self, config_file_path):
         logger.info("Loading config")
         # Load config
-        config = ConfigParser.ConfigParser()
-        config.read(config_file_path)
+        self.config = ConfigParser.ConfigParser()
+        self.config.read(config_file_path)
         logger.info("Config file read")
         # GMail account credentials
-        self.username = config.get('gmail', 'user')
-        self.password = config.get('gmail', 'password')
-        self.from_name = config.get('gmail', 'name')
-        self.sender = config.get('gmail', 'sender')
+        self.username = self.config.get('gmail', 'user')
+        self.password = self.config.get('gmail', 'password')
+        self.from_name = self.config.get('gmail', 'name')
+        self.sender = self.config.get('gmail', 'sender')
 
         # Recipient email address (could be same as from_addr)
-        self.recipient = config.get('gmail', 'recipient')
+        self.recipient = self.config.get('gmail', 'recipient')
 
         # Subject line for email
-        self.subject = config.get('gmail', 'subject')
+        self.subject = self.config.get('gmail', 'subject')
 
         # First line of email message
-        self.message = config.get('gmail', 'message')
-
-        # Folder (or collection) in Docs where you want the media to go
-        self.folder = config.get('docs', 'folder')
+        self.message = self.config.get('gmail', 'message')
 
         # Options
-        self.delete_files = config.getboolean('options', 'delete-files')
-        self.send_email = config.getboolean('options', 'send-email')
+        self.delete_files = self.config.getboolean('options', 'delete-files')
+        self.send_email = self.config.getboolean('options', 'send-email')
 
-        self._create_gdata_client()
-
-        self.google_drive_folder_link = config.get('gmail', 'google_drive_folder_link')
-        self.event_started_message = config.get('gmail', 'event_started_message')
+        self.google_drive_folder_link = self.config.get('gmail', 'google_drive_folder_link')
+        self.event_started_message = self.config.get('gmail', 'event_started_message')
         
         self.presenceMacs = []
         self.network = None
@@ -100,37 +94,24 @@ class MotionNotify:
         self.ip_addresses = None
         
         try:
-            self.presenceMacs = config.get( 'LAN', 'presence_macs' ).split( ',' )
-            self.network = config.get( 'LAN', 'network' )
+            self.presenceMacs = self.config.get('LAN', 'presence_macs').split(',')
+            self.network = self.config.get('LAN', 'network')
         except ConfigParser.NoSectionError, ConfigParser.NoOptionError:
             pass
         
         try:
-            self.ip_addresses = config.get( 'LAN', 'ip_addresses' )
+            self.ip_addresses = self.config.get('LAN', 'ip_addresses')
         except ConfigParser.NoSectionError, ConfigParser.NoOptionError:
             pass
         
         try:
-            self.forceOnStart = config.getint( 'activate-system', 'force_on_start' )
-            self.forceOnEnd = config.getint( 'activate-system', 'force_on_end' )
+            self.forceOnStart = self.config.getint('activate-system', 'force_on_start')
+            self.forceOnEnd = self.config.getint('activate-system', 'force_on_end')
         except ConfigParser.NoSectionError, ConfigParser.NoOptionError:
             pass
         
         logger.info("All config options set")
 
-    def _create_gdata_client(self):
-        """Create a Documents List Client."""
-        self.client = gdata.docs.client.DocsClient(source='motion_uploader')
-        self.client.http_client.debug = False
-        self.client.client_login(self.username, self.password, service=self.client.auth_service, source=self.client.source)
-               
-    def _get_folder_resource(self):
-        try:
-            resources = self.client.GetAllResources(uri='https://docs.google.com/feeds/default/private/full/-/folder?title=' + self.folder + '&title-exact=true')
-            return resources[0]
-        except:
-            sys.exit('ERROR: Unable to retrieve resources')
-        
     def _send_email(self,msg):
         '''Send an email using the GMail account.'''
         senddate=datetime.strftime(datetime.now(), '%Y-%m-%d')
@@ -139,33 +120,17 @@ class MotionNotify:
         server.starttls()
         server.login(self.username, self.password)
         server.sendmail(self.sender, self.recipient, m+msg)
-        server.quit()    
+        server.quit()
 
-    def _upload(self, media_file_path, folder_resource):
-        '''Upload the media and return the doc'''
-        if media_file_path.endswith('jpg'):
-            logger.info( 'Uploading image %s ' % media_file_path )
-            try:
-                image_file = open(media_file_path)
-            except IOError, e:
-                sys.exit('ERROR: Unable to open ' + media_file_path + ': ' + e[1])
-            
-            file_size = os.path.getsize(image_file.name)
-            file_type = "image/jpeg"
-            uri = folder_resource.get_resumable_create_media_link().href
-            uri += '?convert=false'
-            uploader = gdata.client.ResumableUploader(self.client, image_file, file_type, file_size, chunk_size=1048576, desired_class=gdata.data.GDEntry)
-            doc = uploader.UploadFile(uri, entry=gdata.data.GDEntry(title=atom.data.Title(text=os.path.basename(image_file.name))))
-            
+    def _upload(self, media_file_path, eventId, eventTime, fileType):
+        '''Upload the media and return the URL'''
+        logger.info('Uploading image %s ' % media_file_path)
+        if (media_file_path.endswith("jpg")):
+            mimeType = "image/" + fileType
         else :
-            if media_file_path.endswith(('avi', 'flv', 'mov', 'mpg', 'swf')):
-                logger.info( 'Uploading video %s ' % media_file_path )
-                doc = gdata.docs.data.Resource(type='video', title=os.path.basename(media_file_path))
-                media = gdata.data.MediaSource()
-                media.SetFileHandle(media_file_path, 'video/avi')
-                doc = self.client.CreateResource(doc, media=media, collection=folder_resource)
-
-        return doc
+            mimeType = "video/" + fileType
+        return MotionNotifyGoogleUpload.upload(media_file_path, eventId + "_" + eventTime + "." + fileType, self.config,
+                                               mimeType)
     
     def _system_active(self):
         now = datetime.now()
@@ -224,27 +189,13 @@ class MotionNotify:
                     return False
         logger.info( 'IP inactive - nobody is home - system is active' )
         return True
-    
-    def upload_media(self, media_file_path, notify):
+
+    def upload_media(self, media_file_path, notify, eventId, eventTime, fileType):
         if self._system_active() :
-            """Upload media file to the specified folder. Then optionally send an email and optionally delete the local file."""
-            folder_resource = self._get_folder_resource()
-            if not folder_resource:
-                raise Exception('Could not find the %s folder' % self.folder)
-    
-            doc = self._upload(media_file_path, folder_resource)
-    
-            """Config file has email enable and it is set to true on the command line"""
+            fileurl = self._upload(media_file_path, eventId, eventTime, fileType)
+
             if self._email_required(notify):
-                media_link = None
-                for link in doc.link:
-                    if 'video.google.com' in link.href:
-                        media_link = link.href
-                        break
-                # Send an email with the link if found
-                msg = self.message
-                if media_link:
-                    msg += '\n\n' + media_link
+                msg = self.message + fileurl
                 self._send_email(msg)
 
         if self.delete_files:
@@ -263,7 +214,8 @@ if __name__ == '__main__':
     logger.info("Motion Notify script started")
     try:
         if len(sys.argv) < 3:
-            exit('Motion Notify - uploads media to Google Drive when network presence indicates nobody is home\n   by Andrew Dean, based on Google Drive Uploader Jeremy Blythe (http://jeremyblythe.blogspot.com)\n\n   Usage: uploader.py {config-file-path} {media-file-path} {send-email (1 if email required, if not, 0)}')
+            exit(
+                'Motion Notify - Usage: uploader.py {config-file-path} {media-file-path} {send-email (1 if email required, if not, 0)} {timestamp} {event_id} {filetype} ')
         cfg_path = sys.argv[1]
 
         vid_path = sys.argv[2]
@@ -271,20 +223,24 @@ if __name__ == '__main__':
             notify = True
         else :
             notify = False
+
+        if vid_path == 'None':
+            MotionNotify(cfg_path).send_start_event_email(notify)
+            exit('Start event triggered')
+
+        if len(sys.argv) < 6:
+            exit(
+                'Motion Notify - Usage: motion-notify.py {config-file-path} {media-file-path} {send-email (1 if email required, if not, 0)} {timestamp} {event_id} {filetype} ')
+
+        eventTime = sys.argv[4]
+        eventId = sys.argv[5]
+        fileType = sys.argv[6]
         if not os.path.exists(cfg_path):
             exit('Config file does not exist [%s]' % cfg_path)
 
-        if vid_path == 'None' :
-                MotionNotify(cfg_path).send_start_event_email(notify)
-                exit('Start event triggered')
-
         if not os.path.exists(vid_path):
-            exit('Video file does not exist [%s]' % vid_path)
+            exit('Video or image file does not exist [%s]' % vid_path)
 
-        MotionNotify(cfg_path).upload_media(vid_path, notify)
-    except gdata.client.BadAuthentication:
-        exit('Invalid user credentials given.')
-    except gdata.client.Error:
-        exit('Login Error')
+        MotionNotify(cfg_path).upload_media(vid_path, notify, eventId, eventTime, fileType)
     except Exception as e:
         exit('Error: [%s]' % e)
