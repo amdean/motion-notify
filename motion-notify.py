@@ -38,7 +38,6 @@ import sys
 import subprocess, time
 
 import ConfigParser
-import atom.data
 
 import logging.handlers, traceback
 
