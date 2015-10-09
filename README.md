@@ -54,13 +54,35 @@ sudo mkdir /etc/motion-notify
 Copy ```motion-notify.cfg```, ```motion-notify.py``` and ```create-motion-conf-entries.txt``` to the directory you created
 
 Create the log file and set the permissions
+
 ```bash
 sudo touch /var/tmp/motion-notify.log
 sudo chown motion.motion /var/tmp/motion-notify.log
 sudo chmod 664 /var/tmp/motion-notify.log
 ```
 
-## Configurations
+Update Configuration (see Configuration Section)
+
+Change the File permissions
+
+```bash
+sudo chown motion.motion /etc/motion-notify/motion-notify.py
+sudo chown motion.motion /etc/motion-notify/motion-notify.cfg
+sudo chmod 744 motion.motion /etc/motion-notify/motion-notify.py
+sudo chmod 600 motion.motion /etc/motion-notify/motion-notify.cfg
+```
+
+Create the entry in the Motion conf file to trigger the motion-notify script when there is an alert
+
+```bash
+sudo cat /etc/motion-notify/create-motion-conf-entries.txt >> /etc/motion/motion.conf
+rm /etc/motion-notify/create-motion-conf-entries.txt
+```
+
+Motion will now send alerts to you when you're devices aren't present on the network
+
+
+## Configuration
 
 ### Google Drive Config
 
@@ -108,20 +130,19 @@ Enter the following configuration for emails:
 - The hours that you always want to receive email alerts even when you're home
 - Either enter IP addresses or MAC addresses (avoid using MAC addresses) which will be active when you're at home
 
-Change the permissions
+### Sub Folder Config
 
-```bash
-sudo chown motion.motion /etc/motion-notify/motion-notify.py
-sudo chown motion.motion /etc/motion-notify/motion-notify.cfg
-sudo chmod 744 motion.motion /etc/motion-notify/motion-notify.py
-sudo chmod 600 motion.motion /etc/motion-notify/motion-notify.cfg
-```
+To Create Date Level Folders update the date format config. By Default this is set to roll each day. (See Permissions)
 
-Create the entry in the Motion conf file to trigger the motion-notify script when there is an alert
+### Permissions Config
 
-```bash
-sudo cat /etc/motion-notify/create-motion-conf-entries.txt >> /etc/motion/motion.conf
-rm /etc/motion-notify/create-motion-conf-entries.txt
-```
+Using the Service User OAuth (p12 file) means that the files are created and owned by the service user<br/>
+When using folders that means we need to set the folder permission explicitly.<br/>
+By Default the ```gmail/user``` from config is set as a writer. To add any other users set the ```read_users``` and ```write_users``` values in config. 
+These values should be the same as the    
 
-Motion will now send alerts to you when you're devices aren't present on the network
+## TODO
+
+- Set Owner Of Date Folders to be the real owner and not the service user
+- remove need for folder_name by searching for folder id
+- update datefolder search to include root folder as parent

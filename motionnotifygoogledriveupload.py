@@ -2,10 +2,12 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 import httplib2
+import logging.handlers
 from datetime import datetime
 
 from oauth2client.client import SignedJwtAssertionCredentials
 
+logger = logging.getLogger( 'MotionNotifyGoogleUpload')
 
 class MotionNotifyGoogleUpload:
     @staticmethod
@@ -82,38 +84,40 @@ class MotionNotifyGoogleUpload:
         gauth = MotionNotifyGoogleUpload.authenticate(config)
         drive = GoogleDrive(gauth)
 
+
         folder_name = config.get('drive', 'folder_name');
         folder_id = config.get('drive', 'folder');
 
+        # Get Permissions
         owner = config.get('gmail','user')
         writers = filter(lambda x:len(x)>0, [x.strip() for x in config.get('drive','write_users').split(",")] )
         readers = filter(lambda x:len(x)>0, [x.strip() for x in config.get('drive','read_users').split(",")] )
+        writers.append(owner)
 
+        # Check Root Folder Exists
         folder_resource = MotionNotifyGoogleUpload._get_folder_resource(drive,folder_name)
         if not folder_resource:
-            print('Creating Folder {}'.format(folder_name))
+            logger.info('Creating Folder {}'.format(folder_name))
             folder_resource = MotionNotifyGoogleUpload.create_subfolder(drive,None,folder_name,owner,readers, writers)
             # raise Exception('Could not find the %s folder' % self.folder)
 
-        print('Using Folder {} {}'.format(folder_name,folder_resource['id']))
+        logger.debug('Using Folder {} {}'.format(folder_name,folder_resource['id']))
 
-        # formatted_date = time.strftime(self.dateformat)
+        # Check Date Folder Exists & Create / Use as needed
         senddate=datetime.strftime(datetime.now(), config.get('drive', 'dateformat'))
-
-        # Could / Should Add folder_resource as a parent here.
-        datefolder_resource = MotionNotifyGoogleUpload._get_datefolder_resource(drive,senddate+"c")
+        datefolder_resource = MotionNotifyGoogleUpload._get_datefolder_resource(drive,senddate)
         if not datefolder_resource:
-            print('Creating Date Folder {}'.format(senddate+"c"))
-            datefolder_resource = MotionNotifyGoogleUpload.create_subfolder(drive,folder_resource,senddate+"c",owner,readers, writers)
+            logger.info('Creating Date Folder {}'.format(senddate))
+            datefolder_resource = MotionNotifyGoogleUpload.create_subfolder(drive,folder_resource,senddate,owner,readers, writers)
 
-        print('Using Date Folder {} {}'.format(senddate+"c",datefolder_resource['id']))
+        logger.debug('Using Date Folder {} {}'.format(senddate,datefolder_resource['id']))
 
-        #'title':os.path.basename(file_path)
+        # Create File in Date Folder
         gfile = drive.CreateFile({'title': filename, 'mimeType': mime,
                                   "parents": [{"kind": "drive#fileLink", "id": datefolder_resource['id']}]})
         gfile.SetContentFile(media_file_path)
         gfile.Upload()
 
-        print('Uploaded File  {} {}'.format(filename,gfile['id']))
+        logger.debug('Uploaded File  {} {}'.format(filename,gfile['id']))
 
         return '\n\nhttps://drive.google.com/file/d/' + gfile['id'] + '/view?usp=sharing'
