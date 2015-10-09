@@ -146,3 +146,4 @@ These values should be the same as the
 - Set Owner Of Date Folders to be the real owner and not the service user
 - remove need for folder_name by searching for folder id
 - update datefolder search to include root folder as parent
+- Add option to put Video and Pics in seperate folders
