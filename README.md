@@ -139,7 +139,7 @@ To Create Date Level Folders update the date format config. By Default this is s
 Using the Service User OAuth (p12 file) means that the files are created and owned by the service user<br/>
 When using folders that means we need to set the folder permission explicitly.<br/>
 By Default the ```gmail/user``` from config is set as a writer. To add any other users set the ```read_users``` and ```write_users``` values in config. 
-These values should be the same as the    
+These values should be the email addresses of the users you wish to permission.
 
 ## TODO
 
