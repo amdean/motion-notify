@@ -143,7 +143,5 @@ These values should be the email addresses of the users you wish to permission.
 
 ## TODO
 
-- Set Owner Of Date Folders to be the real owner and not the service user
-- remove need for folder_name by searching for folder id
-- update datefolder search to include root folder as parent
+- Set Owner Of Date Folders to be the real owner and not the service user (Not sure this is possible)
 - Add option to put Video and Pics in seperate folders
