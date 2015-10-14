@@ -4,16 +4,18 @@ from pydrive.drive import GoogleDrive
 import httplib2
 import logging.handlers
 from datetime import datetime
+import fcntl,  os
+import sys
 
 from oauth2client.client import SignedJwtAssertionCredentials
-
+LOCK_FILENAME = "/var/tmp/motion-notify.lock.pid"
 logger = logging.getLogger( 'MotionNotify.GoogleUpload')
 #logger.setLevel( logging.DEBUG )
 
 class MotionNotifyGoogleUpload:
     @staticmethod
     def authenticate(config):
-        logger.debug("OAuth2 Authentication - Starting")
+        #logger.debug("OAuth2 Authentication - Starting")
         svc_user_id = config.get('drive', 'service_user_email')
         svc_scope = "https://www.googleapis.com/auth/drive"
         svc_key_file = config.get('drive', 'key_file')
@@ -22,7 +24,7 @@ class MotionNotifyGoogleUpload:
         gcredentials.authorize(httplib2.Http())
         gauth = GoogleAuth()
         gauth.credentials = gcredentials
-        logger.debug("OAuth2 Authentication - Complete")
+        #logger.debug("OAuth2 Authentication - Complete")
         return gauth
 
     @staticmethod
@@ -88,12 +90,16 @@ class MotionNotifyGoogleUpload:
 
     @staticmethod
     def upload(media_file_path, filename, config, mime):
+
+        mutex_enabled =  config.get('options', 'mutex-enabled')
+        if mutex_enabled:
+            f = MotionNotifyGoogleUpload.lock(media_file_path)
+
         gauth = MotionNotifyGoogleUpload.authenticate(config)
         drive = GoogleDrive(gauth)
 
-
-        folder_name = config.get('drive', 'folder_name');
-        folder_id = config.get('drive', 'folder');
+        folder_name = config.get('drive', 'folder_name')
+        folder_id = config.get('drive', 'folder')
 
         # Get Permissions
         owner = config.get('gmail','user')
@@ -106,10 +112,12 @@ class MotionNotifyGoogleUpload:
         # Check Root Folder Exists
         folder_resource = MotionNotifyGoogleUpload._get_folder_resource(drive,folder_name,folder_id)
         if not folder_resource:
-            #logger.info('Creating Folder {}'.format(folder_name))
+            # logger.info('Creating Folder {}'.format(folder_name))
+            # folder_resource = MotionNotifyGoogleUpload.create_subfolder(drive,None,folder_name,owner,readers, writers)
+            #
             # This seemed to create lots of folders I'd no access to, so changing to an Exception
             # Might need some way to set it to the root of the gmail user and not the service user
-            #folder_resource = MotionNotifyGoogleUpload.create_subfolder(drive,None,folder_name,owner,readers, writers)
+
             logger.error("Could not find the {} folder {}".format(folder_name,folder_id) )
             raise Exception("Could not find the {} folder {}".format(folder_name,folder_id) )
 
@@ -132,4 +140,37 @@ class MotionNotifyGoogleUpload:
 
         logger.debug('Uploaded File  {} {}'.format(filename,gfile['id']))
 
+        if mutex_enabled:
+            MotionNotifyGoogleUpload.unlock(f,media_file_path)
+
         return '\n\nhttps://drive.google.com/file/d/' + gfile['id'] + '/view?usp=sharing'
+
+
+    @staticmethod
+    def lock(media_file_path):
+        pid = str(os.getpid())
+        f = open(LOCK_FILENAME, 'w')
+        logger.debug("Trying to Get Lock for upload of {}, pid {}".format(media_file_path, pid))
+        try:
+            fcntl.flock(f, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except IOError:
+            logger.warn("Can't get Lock for upload of {}, pid {}, blocking".format(media_file_path, pid))
+            fcntl.flock(f, fcntl.LOCK_EX)
+            logger.debug("Got Lock for upload of {}, pid {}, blocking".format(media_file_path, pid))
+
+        try:
+            f.write("%s\n" % pid)
+            logger.debug("Writing PID for upload of {}, pid {}, to file {}".format(media_file_path, pid, LOCK_FILENAME))
+        except IOError:
+            logger.error(
+                "Unable to write PID for upload of {}, pid {}, to file {}".format(media_file_path, pid, LOCK_FILENAME))
+            logger.error("Aborting")
+            sys.exit(1)
+        return f
+
+    @staticmethod
+    def unlock(f,media_file_path):
+        fcntl.flock(f, fcntl.LOCK_UN)
+        if(logger.isEnabledFor(logging.DEBUG)):
+            logger.debug("Unlock for upload of {}, pid {}, blocking".format(media_file_path, os.getpid()))
+
