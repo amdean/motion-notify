@@ -124,7 +124,7 @@ class MotionNotify:
     def _upload(self, media_file_path, eventId, eventTime, fileType):
         '''Upload the media and return the URL'''
         logger.info('Uploading image %s ' % media_file_path)
-        if (media_file_path.endswith("jpg")):
+        if (media_file_path.endswith( ("jpg","png","gif","bmp") )):
             mimeType = "image/" + fileType
         else :
             mimeType = "video/" + fileType
