@@ -28,6 +28,7 @@ Install Python Libraries
 sudo apt-get update
 sudo apt-get install python-pip
 sudo pip install PyDrive
+sudo pip install enum34
 sudo apt-get install python-openssl
 
 Create a directory:
