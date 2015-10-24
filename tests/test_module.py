@@ -1,17 +1,26 @@
+import sys
+
 __author__ = 'adean'
 
 import unittest
+import logging.handlers
+from datetime import time
 from objects import Config
 from objects import MotionEvent
 from objects.enums import EventType
 from objects.enums import TriggerRule
 from utils import utils
 from actions import GoogleDriveUploadAction
+from detectors import time_based_detector
 
 
 class MotionNotifyTestSuite(unittest.TestCase):
 
     def setUp(self):
+        self.logger = logging.getLogger('MotionNotify')
+        self.logger.level = logging.DEBUG
+        self.logger.addHandler(logging.StreamHandler(sys.stdout))
+
         self.config = Config.Config("../motion-notify.cfg")
         self.config.set_on_event_start_event_action_list("SmtpEmailNotifyAction:if_active")
         self.config.set_on_picture_save_event_action_list(
@@ -67,6 +76,13 @@ class MotionNotifyTestSuite(unittest.TestCase):
     def test_reflection(self):
         klass = utils.Utils.reflect_class_from_classname('actions', 'GoogleDriveUploadAction')
         self.assertIsInstance(klass, GoogleDriveUploadAction.GoogleDriveUploadAction)
+
+    def test_time_based_detector_check_time_ranges(self):
+        time_ranges = time_based_detector.TimeBasedDetector.get_time_ranges(self.logger, "01:00-07:00,12:00-13:00")
+        self.assertTrue(time_based_detector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(05, 12)))
+        self.assertTrue(time_based_detector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(12, 12)))
+        self.assertFalse(
+            time_based_detector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(18, 12)))
 
 
 if __name__ == '__main__':
