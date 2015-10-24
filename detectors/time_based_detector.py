@@ -6,7 +6,7 @@ __author__ = 'adean'
 
 class TimeBasedDetector:
     @staticmethod
-    def detectPresence(logger, config):
+    def detect_presence(logger, config):
         return TimeBasedDetector.check_time_ranges(logger, TimeBasedDetector.get_time_ranges(
             config.get('TimeBasedDetector', 'time_ranges')), datetime.datetime.now().time())
 
