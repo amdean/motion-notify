@@ -5,6 +5,8 @@ from objects import Config
 from objects import MotionEvent
 from objects.enums import EventType
 from objects.enums import TriggerRule
+from utils import utils
+from actions import GoogleDriveUploadAction
 
 
 class MotionNotifyTestSuite(unittest.TestCase):
@@ -61,6 +63,10 @@ class MotionNotifyTestSuite(unittest.TestCase):
         list_of_actions = motion_event.get_actions_for_event(self.config, False)
         self.assertEqual(1, list_of_actions.__len__())
         self.assertIn("GoogleDriveUploadAction", list_of_actions)
+
+    def test_reflection(self):
+        klass = utils.Utils.reflect_class_from_classname('actions', 'GoogleDriveUploadAction')
+        self.assertIsInstance(klass, GoogleDriveUploadAction.GoogleDriveUploadAction)
 
 
 if __name__ == '__main__':
