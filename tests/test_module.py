@@ -12,6 +12,7 @@ from objects.enums import TriggerRule
 from utils import utils
 from actions import GoogleDriveUploadAction
 from detectors import time_based_detector
+from objects.detector_rules import DetectorRuleSet
 
 
 class MotionNotifyTestSuite(unittest.TestCase):
@@ -83,6 +84,15 @@ class MotionNotifyTestSuite(unittest.TestCase):
         self.assertTrue(time_based_detector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(12, 12)))
         self.assertFalse(
             time_based_detector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(18, 12)))
+
+    def test_detector_rules_get_rule_groups(self):
+        detector_rule_set = DetectorRuleSet("{TimeBasedDetector,IPBasedDetector}{ArpBasedDetector}")
+        self.assertEqual(2, detector_rule_set.detector_rules.__len__())
+        self.assertEqual("TimeBasedDetector", detector_rule_set.detector_rules[0].detectors[0])
+        self.assertEqual("IPBasedDetector", detector_rule_set.detector_rules[0].detectors[1])
+        self.assertEqual("ArpBasedDetector", detector_rule_set.detector_rules[1].detectors[0])
+        detector_rule_set = DetectorRuleSet("{ArpBasedDetector}")
+        self.assertEqual("ArpBasedDetector", detector_rule_set.detector_rules[0].detectors[0])
 
 
 if __name__ == '__main__':
