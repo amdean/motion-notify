@@ -8,7 +8,7 @@ class TimeBasedDetector:
     @staticmethod
     def detect_presence(logger, config):
         return TimeBasedDetector.check_time_ranges(logger, TimeBasedDetector.get_time_ranges(
-            config.get('TimeBasedDetector', 'time_ranges')), datetime.datetime.now().time())
+            config.config.get('TimeBasedDetector', 'time_ranges')), datetime.now().time())
 
     @staticmethod
     def check_time_ranges(logger, time_ranges, current_time):
@@ -21,7 +21,7 @@ class TimeBasedDetector:
         return False
 
     @staticmethod
-    def get_time_ranges(self, config_entry):
+    def get_time_ranges(config_entry):
         time_ranges = []
         time_range_entries = config_entry.split(",")
         for time_range_entry in time_range_entries:

@@ -4,7 +4,7 @@ from enums import EventType
 from enums import TriggerRule
 
 class MotionEvent(object):
-    def __init__(self, mediaFile, eventTime, eventId, fileType, event_type):
+    def __init__(self, mediaFile, event_type, eventTime, eventId, fileType):
         self.mediaFile = mediaFile
         self.eventTime = eventTime
         self.eventId = eventId

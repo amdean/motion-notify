@@ -9,7 +9,7 @@ class IpBasedDetector:
     def detect_presence(logger, config):
         ip_addresses = None
         try:
-            ip_addresses = config.get('IpBasedDetector', 'ip_addresses')
+            ip_addresses = config.config.get('IpBasedDetector', 'ip_addresses')
         except ConfigParser.NoSectionError, ConfigParser.NoOptionError:
             pass
 
