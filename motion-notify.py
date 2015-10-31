@@ -4,7 +4,7 @@ Created on 18th July 2015
 
 @author: Andrew Dean
 
-Motion Notify v0.3 - uploads images and video to Google Drive and sends notification via email.
+Motion Notify v1.0 - uploads images and video to Google Drive and sends notification via email.
 Detects whether someone is home by checking the local network for an IP address or MAC address and only sends email if nobody is home.
 Allows hours to be defined when the system will be active regardless of network presence.
 
