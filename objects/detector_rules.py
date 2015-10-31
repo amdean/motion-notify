@@ -16,7 +16,6 @@ class DetectorRuleSet:
 
     @staticmethod
     def get_status_from_detector_group(self, detectors, config, logger):
-        detector_result = False
         for detector in detectors:
             klass = utils.Utils.reflect_class_from_classname('detectors', detector)
             if klass.detect_presence(logger, config):
