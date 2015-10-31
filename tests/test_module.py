@@ -1,4 +1,8 @@
+import os
 import sys
+from uuid import UUID
+import uuid
+from actions.DeleteMediaFileAction import DeleteMediaFileAction
 
 __author__ = 'adean'
 
@@ -97,6 +101,19 @@ class MotionNotifyTestSuite(unittest.TestCase):
         result = self.config.detector_rule_set.get_status_for_detector_rule_set(self.config, self.logger)
         # IpBasedDetector is looking for 127.0.0.1 so this always shows that the system is inactive as someone is home
         self.assertFalse(result);
+
+    def test_delete_media_file_action(self):
+        motion_test_event = motion_event.MotionEvent('/tmp/' + uuid.uuid1().__str__(),
+                                                     EventType.EventType.on_event_start, 1234567890, 11, 'jpg')
+
+        text_file = open(motion_test_event.mediaFile, "w")
+        text_file.write("output")
+        text_file.close()
+        self.assertTrue(os.path.isfile(motion_test_event.mediaFile))
+
+        DeleteMediaFileAction.doAction(self.config, motion_test_event)
+        self.assertFalse(os.path.isfile(motion_test_event.mediaFile))
+
 
 
 if __name__ == '__main__':

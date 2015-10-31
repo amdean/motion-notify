@@ -12,6 +12,18 @@ logger = logging.getLogger('GoogleDriveUploadAction')
 
 class GoogleDriveUploadAction:
     @staticmethod
+    def do_event_start_action(config, motionEvent):
+        GoogleDriveUploadAction.uploadFile(config, motionEvent)
+
+    @staticmethod
+    def do_event_end_action(config, motionEvent):
+        GoogleDriveUploadAction.uploadFile(config, motionEvent)
+
+    @staticmethod
+    def do_action(config, motionEvent):
+        GoogleDriveUploadAction.uploadFile(config, motionEvent)
+
+    @staticmethod
     def authenticate(config):
         svc_user_id = config.get('GoogleDriveUploadAction', 'service_user_email')
         svc_scope = "https://www.googleapis.com/auth/drive"
@@ -82,22 +94,6 @@ class GoogleDriveUploadAction:
         new_folder["permissions"] = permissions
         new_folder.Upload()
         return new_folder
-
-    @staticmethod
-    def test_action(self):
-        print('test')
-
-    @staticmethod
-    def doEventStartAction(config, motionEvent):
-        GoogleDriveUploadAction.uploadFile(config, motionEvent)
-
-    @staticmethod
-    def doEventEndAction(config, motionEvent):
-        GoogleDriveUploadAction.uploadFile(config, motionEvent)
-
-    @staticmethod
-    def doAction(config, motionEvent):
-        GoogleDriveUploadAction.uploadFile(config, motionEvent)
 
     @staticmethod
     def uploadFile(config, motionEvent):

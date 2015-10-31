@@ -3,28 +3,25 @@ __author__ = 'adean'
 import smtplib
 from datetime import datetime
 
-from objects import motion_event
-
-
 class SmtpEmailNotifyAction:
     @staticmethod
-    def doEventStartAction(config, motionEvent):
+    def do_event_start_action(config, motionEvent):
         msg = config.get('SmtpEmailNotifier', 'event_started_message')
         msg += '\n\n' + config.get('SmtpEmailNotifier', 'image_and_video_folder_link')
-        SmtpEmailNotifyAction.sendEmail(config, motionEvent, msg)
+        SmtpEmailNotifyAction.send_email(config, motionEvent, msg)
 
     @staticmethod
-    def doEventEndAction(config, motionEvent):
+    def do_event_end_action(config, motionEvent):
         msg = config.get('SmtpEmailNotifier', 'message')
         msg += '\n\n' + motionEvent.uploadUrl
-        SmtpEmailNotifyAction.sendEmail(config, motionEvent, msg)
+        SmtpEmailNotifyAction.send_email(config, motionEvent, msg)
 
     @staticmethod
-    def doAction(config, motionEvent):
-        SmtpEmailNotifyAction.sendEmail(config, motionEvent, "")
+    def do_action(config, motionEvent):
+        SmtpEmailNotifyAction.send_email(config, motionEvent, "")
 
     @staticmethod
-    def sendEmail(config, motionEvent, msg):
+    def send_email(config, motionEvent, msg):
         # SMTP account credentials
         username = config.get('SmtpEmailNotifier', 'user')
         password = config.get('SmtpEmailNotifier', 'password')
