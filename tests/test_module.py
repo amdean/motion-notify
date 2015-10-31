@@ -83,10 +83,10 @@ class MotionNotifyTestSuite(unittest.TestCase):
 
     def test_time_based_detector_check_time_ranges(self):
         time_ranges = TimeBasedDetector.TimeBasedDetector.get_time_ranges("01:00-07:00,12:00-13:00")
-        self.assertTrue(TimeBasedDetector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(05, 12)))
-        self.assertTrue(TimeBasedDetector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(12, 12)))
+        self.assertTrue(TimeBasedDetector.TimeBasedDetector.check_time_ranges(time_ranges, time(05, 12)))
+        self.assertTrue(TimeBasedDetector.TimeBasedDetector.check_time_ranges(time_ranges, time(12, 12)))
         self.assertFalse(
-            TimeBasedDetector.TimeBasedDetector.check_time_ranges(self.logger, time_ranges, time(18, 12)))
+            TimeBasedDetector.TimeBasedDetector.check_time_ranges(time_ranges, time(18, 12)))
 
     def test_detector_rules_get_rule_groups(self):
         detector_rule_set = DetectorRuleSet("{TimeBasedDetector,IPBasedDetector}{ArpBasedDetector}")
@@ -98,7 +98,7 @@ class MotionNotifyTestSuite(unittest.TestCase):
         self.assertEqual("ArpBasedDetector", detector_rule_set.detector_rule_groups[0].detectors[0])
 
     def test_get_status_from_detector_group(self):
-        result = self.config.detector_rule_set.get_status_for_detector_rule_set(self.config, self.logger)
+        result = self.config.detector_rule_set.get_status_for_detector_rule_set(self.config)
         # IpBasedDetector is looking for 127.0.0.1 so this always shows that the system is inactive as someone is home
         self.assertFalse(result);
 

@@ -2,10 +2,12 @@ __author__ = 'adean'
 
 import subprocess
 import ConfigParser
+import logging
 
+logger = logging.getLogger('MotionNotify')
 
 class ArpBasedDetector:
-    def detect_presence(logger, config):
+    def detect_presence(config):
         presence_macs = []
         network = None
 

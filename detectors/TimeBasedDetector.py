@@ -1,17 +1,20 @@
+__author__ = 'adean'
+
 from datetime import time
 from datetime import datetime
 
-__author__ = 'adean'
+import logging
 
+logger = logging.getLogger('MotionNotify')
 
 class TimeBasedDetector:
     @staticmethod
-    def detect_presence(logger, config):
-        return TimeBasedDetector.check_time_ranges(logger, TimeBasedDetector.get_time_ranges(
+    def detect_presence(config):
+        return TimeBasedDetector.check_time_ranges(TimeBasedDetector.get_time_ranges(
             config.config.get('TimeBasedDetector', 'time_ranges')), datetime.now().time())
 
     @staticmethod
-    def check_time_ranges(logger, time_ranges, current_time):
+    def check_time_ranges(time_ranges, current_time):
         for time_range in time_ranges:
             if time_range.start_time <= current_time <= time_range.end_time:
                 logger.info('System is active due to TimeBasedDetector: ' + time_range.start_time.strftime(

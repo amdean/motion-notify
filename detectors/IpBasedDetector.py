@@ -2,11 +2,13 @@ __author__ = 'adean'
 
 import subprocess
 import ConfigParser
+import logging
 
+logger = logging.getLogger('MotionNotify')
 
 class IpBasedDetector:
     @staticmethod
-    def detect_presence(logger, config):
+    def detect_presence(config):
         ip_addresses = None
         try:
             ip_addresses = config.config.get('IpBasedDetector', 'ip_addresses')

@@ -15,19 +15,19 @@ class DetectorRuleSet:
             self.detector_rule_groups.append(DetectorRuleGroup(result))
 
     @staticmethod
-    def get_status_from_detector_group(self, detectors, config, logger):
+    def get_status_from_detector_group(self, detectors, config):
         for detector in detectors:
             klass = utils.Utils.reflect_class_from_classname('detectors', detector)
-            if klass.detect_presence(logger, config):
+            if klass.detect_presence(config):
                 return True
         return False
 
-    def get_status_for_detector_rule_set(self, config, logger):
+    def get_status_for_detector_rule_set(self, config):
         is_system_active = False
         for detector_groups in self.detector_rule_groups:
             is_system_active = is_system_active or DetectorRuleSet.get_status_from_detector_group(self,
                                                                                                   detector_groups.detectors,
-                                                                                                  config, logger)
+                                                                                                  config)
         return is_system_active
 
 
