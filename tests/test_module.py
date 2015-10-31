@@ -11,8 +11,8 @@ import logging.handlers
 from datetime import time
 from objects import config
 from objects import motion_event
-from objects.enums import EventType
-from objects.enums import TriggerRule
+from objects.enums import event_type
+from objects.enums import trigger_rule
 from utils import utils
 from actions import GoogleDriveUploadAction
 from detectors import TimeBasedDetector
@@ -36,43 +36,43 @@ class MotionNotifyTestSuite(unittest.TestCase):
         event_actions = self.config.on_event_start_event_action_list
         self.assertEqual(1, event_actions.__len__())
         self.assertEqual(event_actions[0].action_name, "SmtpEmailNotifyAction")
-        self.assertEqual(event_actions[0].trigger_rule, TriggerRule.TriggerRule.if_active)
+        self.assertEqual(event_actions[0].trigger_rule, trigger_rule.TriggerRule.if_active)
 
         event_actions = self.config.on_picture_save_event_action_list
         self.assertEqual(2, event_actions.__len__())
         self.assertEqual(event_actions[0].action_name, "GoogleDriveUploadAction")
-        self.assertEqual(event_actions[0].trigger_rule, TriggerRule.TriggerRule.always)
+        self.assertEqual(event_actions[0].trigger_rule, trigger_rule.TriggerRule.always)
         self.assertEqual(event_actions[1].action_name, "SmtpEmailNotifyAction")
-        self.assertEqual(event_actions[1].trigger_rule, TriggerRule.TriggerRule.if_active)
+        self.assertEqual(event_actions[1].trigger_rule, trigger_rule.TriggerRule.if_active)
 
     def test_motion_test_event_get_actions_for_event(self):
-        motion_test_event = motion_event.MotionEvent('', EventType.EventType.on_event_start, 1234567890, 11, 'jpg')
+        motion_test_event = motion_event.MotionEvent('', event_type.EventType.on_event_start, 1234567890, 11, 'jpg')
         event_actions = motion_test_event.get_event_actions_for_event(self.config)
         self.assertEqual(1, event_actions.__len__())
 
-        motion_test_event = motion_event.MotionEvent('', EventType.EventType.on_picture_save, 1234567890, 11, 'jpg')
+        motion_test_event = motion_event.MotionEvent('', event_type.EventType.on_picture_save, 1234567890, 11, 'jpg')
         event_actions = motion_test_event.get_event_actions_for_event(self.config)
         self.assertEqual(2, event_actions.__len__())
 
     def test_get_actions_for_event(self):
-        motion_test_event = motion_event.MotionEvent('', EventType.EventType.on_event_start, 1234567890, 11, 'jpg')
+        motion_test_event = motion_event.MotionEvent('', event_type.EventType.on_event_start, 1234567890, 11, 'jpg')
         list_of_actions = motion_test_event.get_actions_for_event(self.config, True)
         self.assertEqual(1, list_of_actions.__len__())
         self.assertIn("SmtpEmailNotifyAction", list_of_actions)
 
-        motion_test_event = motion_event.MotionEvent('', EventType.EventType.on_picture_save, 1234567890, 11, 'jpg')
+        motion_test_event = motion_event.MotionEvent('', event_type.EventType.on_picture_save, 1234567890, 11, 'jpg')
         list_of_actions = motion_test_event.get_actions_for_event(self.config, True)
         self.assertEqual(2, list_of_actions.__len__())
         self.assertIn("GoogleDriveUploadAction", list_of_actions)
         self.assertIn("SmtpEmailNotifyAction", list_of_actions)
 
-        motion_test_event = motion_event.MotionEvent('', EventType.EventType.on_movie_end, 1234567890, 11, 'jpg')
+        motion_test_event = motion_event.MotionEvent('', event_type.EventType.on_movie_end, 1234567890, 11, 'jpg')
         list_of_actions = motion_test_event.get_actions_for_event(self.config, True)
         self.assertEqual(1, list_of_actions.__len__())
         self.assertIn("SmtpEmailNotifyAction", list_of_actions)
 
         # test that if the system is inactive "if_active" events are not triggered
-        motion_test_event = motion_event.MotionEvent('', EventType.EventType.on_picture_save, 1234567890, 11, 'jpg')
+        motion_test_event = motion_event.MotionEvent('', event_type.EventType.on_picture_save, 1234567890, 11, 'jpg')
         list_of_actions = motion_test_event.get_actions_for_event(self.config, False)
         self.assertEqual(1, list_of_actions.__len__())
         self.assertIn("GoogleDriveUploadAction", list_of_actions)
@@ -104,15 +104,15 @@ class MotionNotifyTestSuite(unittest.TestCase):
 
     def test_delete_media_file_action(self):
         motion_test_event = motion_event.MotionEvent('/tmp/' + uuid.uuid1().__str__(),
-                                                     EventType.EventType.on_event_start, 1234567890, 11, 'jpg')
+                                                     event_type.EventType.on_event_start, 1234567890, 11, 'jpg')
 
-        text_file = open(motion_test_event.mediaFile, "w")
+        text_file = open(motion_test_event.media_file, "w")
         text_file.write("output")
         text_file.close()
-        self.assertTrue(os.path.isfile(motion_test_event.mediaFile))
+        self.assertTrue(os.path.isfile(motion_test_event.media_file))
 
         DeleteMediaFileAction.doAction(self.config, motion_test_event)
-        self.assertFalse(os.path.isfile(motion_test_event.mediaFile))
+        self.assertFalse(os.path.isfile(motion_test_event.media_file))
 
 
 

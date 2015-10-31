@@ -2,7 +2,7 @@ from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
 import httplib2
-import logging.handlers
+import logging
 from datetime import datetime
 
 from oauth2client.client import SignedJwtAssertionCredentials
@@ -13,17 +13,17 @@ logger = logging.getLogger('MotionNotify')
 class GoogleDriveUploadAction:
     @staticmethod
     def do_event_start_action(config, motion_event):
-        logger.info("MotionEventId:" + motion_event.eventId + " GoogleDriveUploadAction event start")
+        logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveUploadAction event start")
         GoogleDriveUploadAction.uploadFile(config, motion_event)
 
     @staticmethod
     def do_event_end_action(config, motion_event):
-        logger.info("MotionEventId:" + motion_event.eventId + " GoogleDriveUploadAction event end")
+        logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveUploadAction event end")
         GoogleDriveUploadAction.uploadFile(config, motion_event)
 
     @staticmethod
     def do_action(config, motion_event):
-        logger.info("MotionEventId:" + motion_event.eventId + " GoogleDriveUploadAction event")
+        logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveUploadAction event")
         GoogleDriveUploadAction.uploadFile(config, motion_event)
 
     @staticmethod
@@ -104,11 +104,11 @@ class GoogleDriveUploadAction:
     def uploadFile(config, motion_event):
         gauth = GoogleDriveUploadAction.authenticate(config)
         drive = GoogleDrive(gauth)
-        filename = motion_event.eventId + "_" + motion_event.eventTime
-        if (motion_event.mediaFile.endswith(("jpg", "png", "gif", "bmp"))):
-            mimeType = "image/" + motion_event.fileType
+        filename = motion_event.event_id + "_" + motion_event.event_time
+        if (motion_event.media_file.endswith(("jpg", "png", "gif", "bmp"))):
+            mimeType = "image/" + motion_event.file_type
         else:
-            mimeType = "video/" + motion_event.fileType
+            mimeType = "video/" + motion_event.file_type
 
         folder_name = config.get('GoogleDriveUploadAction', 'folder_name');
         folder_id = config.get('GoogleDriveUploadAction', 'folder');
@@ -130,7 +130,7 @@ class GoogleDriveUploadAction:
             # raise Exception('Could not find the %s folder' % self.folder)
 
         logger.debug(
-            "MotionEventId:" + motion_event.eventId + 'Using Folder {} {}'.format(folder_name, folder_resource['id']))
+            "Motionevent_id:" + motion_event.event_id + 'Using Folder {} {}'.format(folder_name, folder_resource['id']))
 
         # Check Date Folder Exists & Create / Use as needed
         senddate = datetime.strftime(datetime.now(), config.get('GoogleDriveUploadAction', 'dateformat'))
@@ -140,7 +140,7 @@ class GoogleDriveUploadAction:
             datefolder_resource = GoogleDriveUploadAction.create_subfolder(drive, folder_resource, senddate, owner,
                                                                            readers, writers)
 
-        logger.debug("MotionEventId:" + motion_event.eventId + ' Using Date Folder {} {}'.format(senddate,
+        logger.debug("Motionevent_id:" + motion_event.event_id + ' Using Date Folder {} {}'.format(senddate,
                                                                                                  datefolder_resource[
                                                                                                      'id']))
 
@@ -150,6 +150,6 @@ class GoogleDriveUploadAction:
 
         gfile.Upload()
 
-        logger.debug("MotionEventId:" + motion_event.eventId + 'Uploaded File  {} {}'.format(filename, gfile['id']))
+        logger.debug("Motionevent_id:" + motion_event.event_id + 'Uploaded File  {} {}'.format(filename, gfile['id']))
 
         return '\n\nhttps://drive.google.com/file/d/' + gfile['id'] + '/view?usp=sharing'

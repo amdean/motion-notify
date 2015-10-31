@@ -36,7 +36,7 @@ import logging.handlers
 import traceback
 from objects import motion_event
 from objects import config
-from objects.enums import EventType
+from objects.enums import event_type
 from utils import utils
 
 logger = logging.getLogger('MotionNotify')
@@ -62,13 +62,13 @@ class MotionNotify:
         actions_for_event = self.motion_event.get_actions_for_event(self.config, self.is_system_active)
         for action in actions_for_event:
             logger.info(
-                "Handling action: " + action + " for event ID " + self.motion_event.eventId + " with event_type " + self.motion_event.event_type)
+                "Handling action: " + action + " for event ID " + self.motion_event.event_id + " with event_type " + self.motion_event.event_type)
             klass = utils.Utils.reflect_class_from_classname('actions', action)
-            if self.motion_event.event_type == EventType.EventType.on_event_start:
+            if self.motion_event.event_type == event_type.EventType.on_event_start:
                 klass.do_event_start_action(config, motion_event)
-            elif self.motion_event.event_type == EventType.EventType.on_picture_save:
+            elif self.motion_event.event_type == event_type.EventType.on_picture_save:
                 klass.doOnPictureSaveAction(config, motion_event)
-            elif self.motion_event.event_type == EventType.EventType.on_movie_end:
+            elif self.motion_event.event_type == event_type.EventType.on_movie_end:
                 klass.doOnMovieEndAction(config, motion_event)
 
     def __init__(self, config, motion_event):
@@ -84,13 +84,13 @@ if __name__ == '__main__':
 
         if len(sys.argv) < 6:
             exit(
-                'Motion Notify - Usage: uploader.py {config-file-path} {media-file-path} {event-type on_event_start, on_picture_save or on_movie_end} {timestamp} {event_id} {filetype} ')
+                'Motion Notify - Usage: uploader.py {config-file-path} {media-file-path} {event-type on_event_start, on_picture_save or on_movie_end} {timestamp} {event_id} {file_type} ')
 
         cfg_path = sys.argv[1]
         if not os.path.exists(cfg_path):
             exit('Config file does not exist [%s]' % cfg_path)
 
-        motion_event = motion_event.MotionEvent(sys.argv[2], EventType[sys.argv[3]], sys.argv[4], sys.argv[5],
+        motion_event = motion_event.MotionEvent(sys.argv[2], event_type[sys.argv[3]], sys.argv[4], sys.argv[5],
                                                 sys.argv[6])
 
         MotionNotify(config.Config(cfg_path), motion_event)

@@ -1,6 +1,7 @@
 __author__ = 'adean'
 
 import smtplib
+import logging
 from datetime import datetime
 
 logger = logging.getLogger('MotionNotify')
@@ -8,21 +9,21 @@ logger = logging.getLogger('MotionNotify')
 class SmtpEmailNotifyAction:
     @staticmethod
     def do_event_start_action(config, motion_event):
-        logger.info("MotionEventId:" + motion_event.eventId + " Sending start event email")
+        logger.info("Motionevent_id:" + motion_event.event_id + " Sending start event email")
         msg = config.get('SmtpEmailNotifier', 'event_started_message')
         msg += '\n\n' + config.get('SmtpEmailNotifier', 'image_and_video_folder_link')
         SmtpEmailNotifyAction.send_email(config, motion_event, msg)
 
     @staticmethod
     def do_event_end_action(config, motion_event):
-        logger.info("MotionEventId:" + motion_event.eventId + " Sending event end email")
+        logger.info("Motionevent_id:" + motion_event.event_id + " Sending event end email")
         msg = config.get('SmtpEmailNotifier', 'message')
         msg += '\n\n' + motion_event.uploadUrl
         SmtpEmailNotifyAction.send_email(config, motion_event, msg)
 
     @staticmethod
     def do_action(config, motion_event):
-        logger.info("MotionEventId:" + motion_event.eventId + " Sending email")
+        logger.info("Motionevent_id:" + motion_event.event_id + " Sending email")
         SmtpEmailNotifyAction.send_email(config, motion_event, "")
 
     @staticmethod
@@ -47,4 +48,4 @@ class SmtpEmailNotifyAction:
         server.login(username, password)
         server.sendmail(sender, recipient, m + msg)
         server.quit()
-        logger.info("MotionEventId:" + motion_event.eventId + " Email sent")
+        logger.info("Motionevent_id:" + motion_event.event_id + " Email sent")
