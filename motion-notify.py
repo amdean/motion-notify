@@ -12,7 +12,7 @@ Sends an email to the user at that start of an event and uploads images througho
 At the end of an event the video is uploaded to Google Drive and a link is emailed to the user.
 Files are deleted once they are uploaded.
 
-Based on the Google Drive uploader developed by Jeremy Blythe (http://jeremyblythe.blogspot.com) and pypymotion (https://github.com/7AC/pypymotion) by Wayne Dyck 
+Originally based on the Google Drive uploader developed by Jeremy Blythe (http://jeremyblythe.blogspot.com) and pypymotion (https://github.com/7AC/pypymotion) by Wayne Dyck
 '''
 
 # This file is part of Motion Notify.
@@ -88,9 +88,9 @@ if __name__ == '__main__':
         if not os.path.exists(cfg_path):
             exit('Config file does not exist [%s]' % cfg_path)
 
-        motionEvent = motion_event.MotionEvent(sys.argv[2], EventType[sys.argv[3]], sys.argv[4], sys.argv[5],
-                                               sys.argv[6])
+        motion_event = motion_event.MotionEvent(sys.argv[2], EventType[sys.argv[3]], sys.argv[4], sys.argv[5],
+                                                sys.argv[6])
 
-        MotionNotify(config.Config(cfg_path), motionEvent)
+        MotionNotify(config.Config(cfg_path), motion_event)
     except Exception as e:
         exit('Error: [%s]' % e)
