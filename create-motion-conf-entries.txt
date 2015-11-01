@@ -1,4 +1,3 @@
-on_picture_save /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg %f 0 %s %v %n
-on_movie_end /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg %f 1 %s %v %n
-on_event_start /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg None 1
-
+on_picture_save /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg %f on_picture_save %s %v %n
+on_movie_end /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg %f on_movie_end %s %v %n
+on_event_start /etc/motion-notify/motion-notify.py /etc/motion-notify/motion-notify.cfg None on_event_start %s %v None

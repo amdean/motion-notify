@@ -28,9 +28,9 @@ class GoogleDriveUploadAction:
 
     @staticmethod
     def authenticate(config):
-        svc_user_id = config.get('GoogleDriveUploadAction', 'service_user_email')
+        svc_user_id = config.config_obj.get('GoogleDriveUploadAction', 'service_user_email')
         svc_scope = "https://www.googleapis.com/auth/drive"
-        svc_key_file = config.get('GoogleDriveUploadAction', 'key_file')
+        svc_key_file = config.config_obj.get('GoogleDriveUploadAction', 'key_file')
         svc_key = open(svc_key_file, 'rb').read()
         gcredentials = SignedJwtAssertionCredentials(svc_user_id, svc_key, scope=svc_scope)
         gcredentials.authorize(httplib2.Http())
@@ -105,20 +105,22 @@ class GoogleDriveUploadAction:
         gauth = GoogleDriveUploadAction.authenticate(config)
         drive = GoogleDrive(gauth)
         filename = motion_event.event_id + "_" + motion_event.event_time
+
         if (motion_event.media_file.endswith(("jpg", "png", "gif", "bmp"))):
             mimeType = "image/" + motion_event.file_type
         else:
             mimeType = "video/" + motion_event.file_type
 
-        folder_name = config.get('GoogleDriveUploadAction', 'folder_name');
-        folder_id = config.get('GoogleDriveUploadAction', 'folder');
+        folder_name = config.config_obj.get('GoogleDriveUploadAction', 'folder_name');
+        folder_id = config.config_obj.get('GoogleDriveUploadAction', 'folder');
 
         # Get Permissions
-        owner = config.get('GoogleDriveUploadAction', 'owner')
+        owner = config.config_obj.get('GoogleDriveUploadAction', 'owner')
         writers = filter(lambda x: len(x) > 0,
-                         [x.strip() for x in config.get('GoogleDriveUploadAction', 'write_users').split(",")])
+                         [x.strip() for x in
+                          config.config_obj.get('GoogleDriveUploadAction', 'write_users').split(",")])
         readers = filter(lambda x: len(x) > 0,
-                         [x.strip() for x in config.get('GoogleDriveUploadAction', 'read_users').split(",")])
+                         [x.strip() for x in config.config_obj.get('GoogleDriveUploadAction', 'read_users').split(",")])
         writers.append(owner)
 
         # Check Root Folder Exists
@@ -133,7 +135,7 @@ class GoogleDriveUploadAction:
             "Motionevent_id:" + motion_event.event_id + 'Using Folder {} {}'.format(folder_name, folder_resource['id']))
 
         # Check Date Folder Exists & Create / Use as needed
-        senddate = datetime.strftime(datetime.now(), config.get('GoogleDriveUploadAction', 'dateformat'))
+        senddate = datetime.strftime(datetime.now(), config.config_obj.get('GoogleDriveUploadAction', 'dateformat'))
         datefolder_resource = GoogleDriveUploadAction._get_datefolder_resource(drive, senddate)
         if not datefolder_resource:
             logger.info('Creating Date Folder {}'.format(senddate))
@@ -147,7 +149,7 @@ class GoogleDriveUploadAction:
         # Create File in Date Folder
         gfile = drive.CreateFile({'title': filename, 'mimeType': mimeType,
                                   "parents": [{"kind": "drive#fileLink", "id": datefolder_resource['id']}]})
-
+        gfile.SetContentFile(motion_event.media_file)
         gfile.Upload()
 
         logger.debug("Motionevent_id:" + motion_event.event_id + 'Uploaded File  {} {}'.format(filename, gfile['id']))

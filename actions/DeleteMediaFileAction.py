@@ -7,17 +7,17 @@ logger = logging.getLogger('MotionNotify')
 
 class DeleteMediaFileAction:
     @staticmethod
-    def doEventStartAction(config, motion_event):
+    def do_event_start_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id.__str__() + " Deleting: %s", motion_event.media_file)
         DeleteMediaFileAction.delete_file(motion_event.media_file)
 
     @staticmethod
-    def doEventEndAction(config, motion_event):
+    def do_event_end_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id.__str__() + " Deleting: %s", motion_event.media_file)
         DeleteMediaFileAction.delete_file(motion_event.media_file)
 
     @staticmethod
-    def doAction(config, motion_event):
+    def do_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id.__str__() + " Deleting: %s", motion_event.media_file)
         DeleteMediaFileAction.delete_file(motion_event.media_file)
 
