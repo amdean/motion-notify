@@ -1,5 +1,6 @@
 __author__ = 'adean'
 
+import os
 from enums import event_type as event_type_mod
 from enums import trigger_rule as trigger_rule_mod
 
@@ -27,3 +28,13 @@ class MotionEvent(object):
                             event_action.trigger_rule == trigger_rule_mod.TriggerRule.if_active and is_system_active):
                 actions_to_perform.append(event_action.action_name)
         return actions_to_perform
+
+    def get_mime_type(self):
+        if self.media_file.endswith(("jpg", "png", "gif", "bmp")):
+            return "image/" + self.file_type
+        else:
+            return "video/" + self.file_type
+
+    def get_upload_filename(self):
+        return self.event_id.__str__() + "_" + self.event_time.__str__() + os.path.splitext(self.media_file)[
+            1].__str__()

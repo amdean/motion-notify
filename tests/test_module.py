@@ -120,6 +120,17 @@ class MotionNotifyTestSuite(unittest.TestCase):
         DeleteMediaFileAction.do_action(self.config, motion_test_event)
         self.assertFalse(os.path.isfile(motion_test_event.media_file))
 
+    def test_motion_event_get_upload_filename(self):
+        motion_test_event = motion_event_mod.MotionEvent('/tmp/' + uuid.uuid1().__str__() + '.jpg',
+                                                         event_type_mod.EventType.on_event_start, 1234567890, 11, 'jpg')
+        self.assertEqual(motion_test_event.get_upload_filename(),
+                         motion_test_event.event_id.__str__() + "_" + motion_test_event.event_time.__str__() + ".jpg")
+
+    def test_motion_event_get_mime(self):
+        motion_test_event = motion_event_mod.MotionEvent('/tmp/' + uuid.uuid1().__str__() + '.jpg',
+                                                         event_type_mod.EventType.on_event_start, 1234567890, 11, 'jpg')
+        self.assertEqual(motion_test_event.get_mime_type(), "image/jpg")
+
 
 
 if __name__ == '__main__':
