@@ -11,6 +11,7 @@ class MotionEvent(object):
         self.event_id = event_id
         self.file_type = file_type
         self.event_type = event_type
+        self.upload_url = ""
 
     def get_event_actions_for_event(self, config):
         if self.event_type == event_type_mod.EventType.on_event_start:

@@ -19,7 +19,7 @@ class SmtpEmailNotifyAction:
     def do_event_end_action(config, motion_event_obj):
         logger.info("Motionevent_id:" + motion_event_obj.event_id + " Sending event end email")
         msg = config.config_obj.get('SmtpEmailNotifyAction', 'movie_end_message')
-        msg += '\n\n' + motion_event_obj.uploadUrl
+        msg += '\n\n' + motion_event_obj.upload_url
         logger.info("Motionevent_id:" + motion_event_obj.event_id + " SmtpEmailNotifyAction: Initial config success")
         SmtpEmailNotifyAction.send_email(config, motion_event_obj, msg)
 

@@ -17,17 +17,17 @@ class GoogleDriveUploadAction:
     @staticmethod
     def do_event_start_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveUploadAction event start")
-        GoogleDriveUploadAction.upload(config, motion_event)
+        motion_event.upload_url = GoogleDriveUploadAction.upload(config, motion_event)
 
     @staticmethod
     def do_event_end_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveUploadAction event end")
-        GoogleDriveUploadAction.upload(config, motion_event)
+        motion_event.upload_url = GoogleDriveUploadAction.upload(config, motion_event)
 
     @staticmethod
     def do_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveUploadAction event")
-        GoogleDriveUploadAction.upload(config, motion_event)
+        motion_event.upload_url = GoogleDriveUploadAction.upload(config, motion_event)
 
     @staticmethod
     def authenticate(config):
@@ -168,7 +168,7 @@ class GoogleDriveUploadAction:
         if mutex_enabled:
             GoogleDriveUploadAction.unlock(f, motion_event.media_file)
 
-        return '\n\nhttps://drive.google.com/file/d/' + gfile['id'] + '/view?usp=sharing'
+        return 'https://drive.google.com/file/d/' + gfile['id'] + '/view?usp=sharing'
 
     @staticmethod
     def lock(media_file_path):
