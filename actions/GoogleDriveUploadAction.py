@@ -7,7 +7,7 @@ from datetime import datetime
 import fcntl, os
 import sys
 
-from oauth2client.client import SignedJwtAssertionCredentials
+from oauth2client.service_account import ServiceAccountCredentials
 
 LOCK_FILENAME = "/var/tmp/motion-notify.lock.pid"
 logger = logging.getLogger('MotionNotify')
@@ -35,8 +35,7 @@ class GoogleDriveUploadAction:
         svc_user_id = config.config_obj.get('GoogleDriveUploadAction', 'service_user_email')
         svc_scope = "https://www.googleapis.com/auth/drive"
         svc_key_file = config.config_obj.get('GoogleDriveUploadAction', 'key_file')
-        svc_key = open(svc_key_file, 'rb').read()
-        gcredentials = SignedJwtAssertionCredentials(svc_user_id, svc_key, scope=svc_scope)
+        gcredentials = ServiceAccountCredentials.from_p12_keyfile(svc_user_id, svc_key_file, scopes=svc_scope)
         gcredentials.authorize(httplib2.Http())
         gauth = GoogleAuth()
         gauth.credentials = gcredentials

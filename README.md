@@ -124,15 +124,17 @@ sudo apt-get update
 sudo apt-get install python-pip
 sudo pip install PyDrive
 sudo pip install enum34
-sudo pip install oauth2client
-sudo pip install google-api-python-client
-sudo apt-get install python-openssl
+sudo pip install oauth2client (may already be installed)
+sudo pip install google-api-python-client (may already be installed)
+sudo apt-get install python-openssl (may already be installed)
 ```
 
-Create a directory:
-
+Clone the Git repo into the directory
 ```bash
-sudo mkdir /etc/motion-notify
+cd /etc/
+sudo apt-get install git
+sudo git clone https://github.com/amdean/motion-notify.git
+sudo chown -R motion.motion /etc/motion-notify
 ```
 
 Copy ```motion-notify.cfg```, ```motion-notify.py``` and ```create-motion-conf-entries.txt``` to the directory you created
@@ -143,6 +145,7 @@ Create the log file and lock file and set the permissions
 sudo touch /var/tmp/motion-notify.log
 sudo chown motion.motion /var/tmp/motion-notify.log
 sudo chmod 664 /var/tmp/motion-notify.log
+sudo touch /var/tmp/motion-notify.lock.pid
 sudo chmod 664 /var/tmp/motion-notify.lock.pid
 sudo chown motion.motion /var/tmp/motion-notify.lock.pid
 ```
@@ -154,8 +157,8 @@ Change the File permissions
 ```bash
 sudo chown motion.motion /etc/motion-notify/motion-notify.py
 sudo chown motion.motion /etc/motion-notify/motion-notify.cfg
-sudo chmod 744 motion.motion /etc/motion-notify/motion-notify.py
-sudo chmod 600 motion.motion /etc/motion-notify/motion-notify.cfg
+sudo chmod 744 /etc/motion-notify/motion-notify.py
+sudo chmod 600 /etc/motion-notify/motion-notify.cfg
 ```
 
 Create the entry in the Motion conf file to trigger the motion-notify script when there is an alert
@@ -204,7 +207,7 @@ Once the project is created you'll be take to the project dashboard for that pro
 You'll receive a download containing a JSON file.
 
 - Generate a new P12 key for the service account you just created using the button underneath the details of the service account.
-- Save this file in the /etc/motion-notify directory and rename it to cred.p12.
+- Save this file in the /etc/motion-notify directory and rename it to creds.p12.
 
 The service account has an email address associated with it which will @developer.gserviceaccount.com.
 Copy that email address and enter it into the "service_user_email" field in the config file.
