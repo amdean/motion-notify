@@ -137,8 +137,6 @@ sudo git clone https://github.com/amdean/motion-notify.git
 sudo chown -R motion.motion /etc/motion-notify
 ```
 
-Copy ```motion-notify.cfg```, ```motion-notify.py``` and ```create-motion-conf-entries.txt``` to the directory you created
-
 Create the log file and lock file and set the permissions
 
 ```bash
