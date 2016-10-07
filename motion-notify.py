@@ -59,7 +59,12 @@ sys.excepthook = loggerExceptHook
 class MotionNotify:
     def handle_event(self):
         logger.debug("Handling Event Actions...")
-        self.is_system_active = self.config_obj.detector_rule_set.get_status_for_detector_rule_set(self.config_obj)
+        # Only carry out the presence checks if needed
+        if self.motion_event_obj.does_event_require_presence_check(self.config_obj):
+            self.is_system_active = self.config_obj.detector_rule_set.get_status_for_detector_rule_set(self.config_obj)
+        else:
+            self.is_system_active = True
+
         actions_for_event = self.motion_event_obj.get_actions_for_event(self.config_obj, self.is_system_active)
         for action in actions_for_event:
             logger.info(

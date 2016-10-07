@@ -11,7 +11,7 @@ apt-get install python-pip
 pip install --upgrade PyDrive
 pip install --upgrade enum34
 pip install --upgrade oauth2client
-pip install --upgrade google-api-python-client
+pip install google-api-python-client --upgrade --ignore-installed six
 apt-get install python-openssl
 
 # Install git and clone motion-notify into the destination directory
