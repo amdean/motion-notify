@@ -30,6 +30,13 @@ class MotionEvent(object):
                 actions_to_perform.append(event_action.action_name)
         return actions_to_perform
 
+    def does_event_require_presence_check(self, config):
+        list_of_event_actions = self.get_event_actions_for_event(config)
+        for event_action in list_of_event_actions:
+            if event_action.trigger_rule == trigger_rule_mod.TriggerRule.if_active:
+                return True
+        return False
+
     def get_mime_type(self):
         if self.media_file.endswith(("jpg", "png", "gif", "bmp")):
             return "image/" + self.file_type

@@ -106,7 +106,7 @@ class MotionNotifyTestSuite(unittest.TestCase):
     def test_get_status_from_detector_group(self):
         result = self.config.detector_rule_set.get_status_for_detector_rule_set(self.config)
         # IpBasedDetector is looking for 127.0.0.1 so this always shows that the system is inactive as someone is home
-        self.assertFalse(result);
+        self.assertFalse(result)
 
     def test_delete_media_file_action(self):
         motion_test_event = motion_event_mod.MotionEvent('/tmp/' + uuid.uuid1().__str__(),

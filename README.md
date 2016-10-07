@@ -1,6 +1,6 @@
 #motion-notify
 
-## Motion Notify Version 1.0.2
+## Motion Notify Version 1.0.3
 
 Motion Notify 1.0 is a major release which is a significant rewrite from the previous 0.3 release.
 The latest version provides a platform which is more stable, more configurable and more extensible. 
