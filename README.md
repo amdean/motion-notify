@@ -297,3 +297,7 @@ Simply create a new Python module in the detectors package, add the detector to 
 
 - Set Owner Of Date Folders to be the real owner and not the service user (Not sure this is possible)
 - Add option to put Video and Pics in seperate folders
+
+
+###SSDP Installation
+sudo pip install requests
