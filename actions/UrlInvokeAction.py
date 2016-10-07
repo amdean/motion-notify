@@ -1,3 +1,8 @@
+"""UrlInvokeAction
+
+An HTTP request is made to the URL's defined in the config file when the event start and event end actions occur.
+No action is carried out when the do_action method is called
+"""
 __author__ = 'adean'
 
 import logging
