@@ -15,6 +15,7 @@ from objects.enums import event_type as event_type_mod
 from objects.enums import trigger_rule as trigger_rule_mod
 from utils import utils as utils_mod
 from actions import GoogleDriveUploadAction as google_drive_upload_action_mod
+from actions import GoogleDriveCleanupAction as google_drive_cleanup_action_mod
 from detectors import TimeBasedDetector as time_based_detector_mod
 from objects.detector_rules import DetectorRuleSet as detector_rule_set_mod
 
@@ -25,7 +26,7 @@ class MotionNotifyTestSuite(unittest.TestCase):
         self.logger.level = logging.DEBUG
         self.logger.addHandler(logging.StreamHandler(sys.stdout))
 
-        self.config = config_mod.Config("../motion-notify.cfg")
+        self.config = config_mod.Config("../motion-notify-test.cfg")
         self.config.set_on_event_start_event_action_list("SmtpEmailNotifyAction:if_active")
         self.config.set_on_picture_save_event_action_list(
             "GoogleDriveUploadAction:always,SmtpEmailNotifyAction:if_active")
@@ -130,6 +131,9 @@ class MotionNotifyTestSuite(unittest.TestCase):
         motion_test_event = motion_event_mod.MotionEvent('/tmp/' + uuid.uuid1().__str__() + '.jpg',
                                                          event_type_mod.EventType.on_event_start, 1234567890, 11, 'jpg')
         self.assertEqual(motion_test_event.get_mime_type(), "image/jpg")
+
+    def test_get_list_of_files(self):
+        google_drive_cleanup_action_mod.GoogleDriveCleanupAction.cleanup(self.config)
 
 
 
