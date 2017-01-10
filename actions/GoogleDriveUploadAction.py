@@ -1,14 +1,10 @@
-from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 
-import httplib2
 import logging.handlers
 from datetime import datetime
 import fcntl, os
 import sys
 import GoogleDriveActionBase
-
-from oauth2client.service_account import ServiceAccountCredentials
 
 LOCK_FILENAME = "/var/tmp/motion-notify.lock.pid"
 logger = logging.getLogger('MotionNotify')
