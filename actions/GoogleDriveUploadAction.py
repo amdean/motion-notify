@@ -6,6 +6,7 @@ import logging.handlers
 from datetime import datetime
 import fcntl, os
 import sys
+import GoogleDriveActionBase
 
 from oauth2client.service_account import ServiceAccountCredentials
 
@@ -28,19 +29,6 @@ class GoogleDriveUploadAction:
     def do_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveUploadAction event")
         motion_event.upload_url = GoogleDriveUploadAction.upload(config, motion_event)
-
-    @staticmethod
-    def authenticate(config):
-        logger.debug("GoogleDriveUploadAction starting authentication")
-        svc_user_id = config.config_obj.get('GoogleDriveUploadAction', 'service_user_email')
-        svc_scope = "https://www.googleapis.com/auth/drive"
-        svc_key_file = config.config_obj.get('GoogleDriveUploadAction', 'key_file')
-        gcredentials = ServiceAccountCredentials.from_p12_keyfile(svc_user_id, svc_key_file, scopes=svc_scope)
-        gcredentials.authorize(httplib2.Http())
-        gauth = GoogleAuth()
-        gauth.credentials = gcredentials
-        logger.debug("GoogleDriveUploadAction authentication complete")
-        return gauth
 
     @staticmethod
     def _get_folder_resource(drive, folder_name, folder_id):
@@ -111,7 +99,7 @@ class GoogleDriveUploadAction:
         if mutex_enabled:
             f = GoogleDriveUploadAction.lock(motion_event.media_file)
 
-        gauth = GoogleDriveUploadAction.authenticate(config)
+        gauth = GoogleDriveActionBase.GoogleDriveActionBase.authenticate(config)
         drive = GoogleDrive(gauth)
 
         folder_name = config.config_obj.get('GoogleDriveUploadAction', 'folder_name')

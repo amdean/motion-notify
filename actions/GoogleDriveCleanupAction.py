@@ -1,12 +1,13 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+import GoogleDriveActionBase
 
 import logging.handlers
 
 logger = logging.getLogger('MotionNotify')
 
 
-class GoogleDriveCleanupAction:
+class GoogleDriveCleanupAction():
     @staticmethod
     def do_event_start_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveCleanupAction event start")
@@ -25,3 +26,9 @@ class GoogleDriveCleanupAction:
     @staticmethod
     def cleanup(config):
         logger.info("GoogleDriveCleanupAction event")
+
+    @staticmethod
+    def get_list_of_directories(config):
+        gauth = GoogleDriveActionBase.GoogleDriveActionBase.authenticate(config)
+        drive = GoogleDrive(gauth)
+
