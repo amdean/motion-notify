@@ -29,7 +29,8 @@ class GoogleDriveCleanupAction:
         drive = GoogleDrive(gauth)
         retain_from_date = datetime.today() - timedelta(days=int(config.config_obj.get('GoogleDriveUploadAction', 'file_retention_days')))
 
-        file_list = drive.ListFile({'q': "'" + config.config_obj.get('GoogleDriveUploadAction', 'folder') + "' in parents and modifiedDate<'" + retain_from_date.strftime("%Y-%m-%d") + "'", 'maxResults': 1000}).GetList()
+        file_list = drive.ListFile({'q': "'" + config.config_obj.get('GoogleDriveUploadAction', 'folder') + "' in parents and modifiedDate<'"
++ retain_from_date.strftime("%Y-%m-%d") + "'", 'maxResults': 1000}).GetList()
         print(file_list.__sizeof__())
         for file1 in file_list:
             logger.debug('GoogleDriveUploadAction Removing: title: %s, id: %s, createdDate: %s, parents: %s' % (file1['title'], file1['id'], file1['createdDate'], file1['parents']))
