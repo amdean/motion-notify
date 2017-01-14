@@ -1,7 +1,10 @@
 import os
+import random
 import sys
 from uuid import UUID
 import uuid
+
+
 from actions.DeleteMediaFileAction import DeleteMediaFileAction
 
 __author__ = 'adean'
@@ -134,7 +137,17 @@ class MotionNotifyTestSuite(unittest.TestCase):
         self.assertEqual(motion_test_event.get_mime_type(), "image/jpg")
 
     def test_get_list_of_files(self):
-        google_drive_cleanup_action_mod.GoogleDriveCleanupAction.cleanup(self.config)
+          google_drive_cleanup_action_mod.GoogleDriveCleanupAction.cleanup(self.config)
+
+    def test_upload_file(self):
+        motion_test_event = motion_event_mod.MotionEvent('../resources/test.jpg',
+                                                         event_type_mod.EventType.on_event_start, random.random(), 11, 'jpg')
+        drive = google_drive_upload_action_mod.GoogleDriveUploadAction.setup_drive(self.config)
+        folder = google_drive_upload_action_mod.GoogleDriveUploadAction.create_folder(drive, self.config)
+        gfile = google_drive_upload_action_mod.GoogleDriveUploadAction.upload_file(drive, motion_test_event, folder)
+        print gfile['title']
+        list = drive.ListFile({'q': "title = '" + gfile['title'] + "' and '" + folder['id'] + "' in parents" }).GetList()
+        self.assertEquals(list.__len__(), 1)
 
 
 

@@ -95,9 +95,41 @@ class GoogleDriveUploadAction:
         if mutex_enabled:
             f = GoogleDriveUploadAction.lock(motion_event.media_file)
 
-        gauth = GoogleDriveActionBase.GoogleDriveActionBase.authenticate(config)
-        drive = GoogleDrive(gauth)
+        drive = GoogleDriveUploadAction.setup_drive(config)
 
+        datefolder_resource = GoogleDriveUploadAction.create_folder(drive, config)
+
+        # Create File in Date Folder
+        gfile = GoogleDriveUploadAction.upload_file(drive, motion_event, datefolder_resource)
+
+        logger.debug(
+            "Motionevent_id:" + motion_event.event_id + ' GoogleDriveUploadAction Uploaded File  {} {}'.format(
+                motion_event.get_upload_filename(),
+                gfile[
+                    'id']))
+
+        if mutex_enabled:
+            GoogleDriveUploadAction.unlock(f, motion_event.media_file)
+
+        return 'https://drive.google.com/file/d/' + gfile['id'] + '/view?usp=sharing'
+
+    @staticmethod
+    def setup_drive(config):
+        gauth = GoogleDriveActionBase.GoogleDriveActionBase.authenticate(config)
+        return GoogleDrive(gauth)
+
+    @staticmethod
+    def upload_file(drive, motion_event, folder):
+        # Create File in Date Folder
+        gfile = drive.CreateFile({'title': motion_event.get_upload_filename(), 'mimeType': motion_event.get_mime_type(),
+                                  "parents": [{"kind": "drive#fileLink", "id": folder['id']}],
+                                  "labels": [{"MotionNotify": True}]})
+        gfile.SetContentFile(motion_event.media_file)
+        gfile.Upload()
+        return gfile
+
+    @staticmethod
+    def create_folder(drive, config):
         folder_name = config.config_obj.get('GoogleDriveUploadAction', 'folder_name')
         folder_id = config.config_obj.get('GoogleDriveUploadAction', 'folder')
 
@@ -111,7 +143,6 @@ class GoogleDriveUploadAction:
         # Keep Owner Seperate # Remove Just in case
         if owner in writers:
             writers.remove(owner);
-
         # Check Root Folder Exists
         folder_resource = GoogleDriveUploadAction._get_folder_resource(drive, folder_name, folder_id)
         if not folder_resource:
@@ -135,23 +166,7 @@ class GoogleDriveUploadAction:
                                                                            readers, writers)
 
         logger.debug('Using Date Folder {} {}'.format(senddate, datefolder_resource['id']))
-
-        # Create File in Date Folder
-        gfile = drive.CreateFile({'title': motion_event.get_upload_filename(), 'mimeType': motion_event.get_mime_type(),
-                                  "parents": [{"kind": "drive#fileLink", "id": datefolder_resource['id']}]})
-        gfile.SetContentFile(motion_event.media_file)
-        gfile.Upload()
-
-        logger.debug(
-            "Motionevent_id:" + motion_event.event_id + ' GoogleDriveUploadAction Uploaded File  {} {}'.format(
-                motion_event.get_upload_filename(),
-                gfile[
-                    'id']))
-
-        if mutex_enabled:
-            GoogleDriveUploadAction.unlock(f, motion_event.media_file)
-
-        return 'https://drive.google.com/file/d/' + gfile['id'] + '/view?usp=sharing'
+        return datefolder_resource
 
     @staticmethod
     def lock(media_file_path):
