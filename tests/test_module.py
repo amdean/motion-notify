@@ -23,8 +23,9 @@ from objects.detector_rules import DetectorRuleSet as detector_rule_set_mod
 class MotionNotifyTestSuite(unittest.TestCase):
     def setUp(self):
         self.logger = logging.getLogger('MotionNotify')
-        self.logger.level = logging.DEBUG
-        self.logger.addHandler(logging.StreamHandler(sys.stdout))
+        if not self.logger.handlers:
+            self.logger.level = logging.DEBUG
+            self.logger.addHandler(logging.StreamHandler(sys.stdout))
 
         self.config = config_mod.Config("../motion-notify-test.cfg")
         self.config.set_on_event_start_event_action_list("SmtpEmailNotifyAction:if_active")
