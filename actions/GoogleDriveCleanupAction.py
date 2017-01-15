@@ -28,15 +28,16 @@ class GoogleDriveCleanupAction:
         gauth = GoogleDriveActionBase.GoogleDriveActionBase.authenticate(config)
         drive = GoogleDrive(gauth)
         retain_from_date = datetime.today() - timedelta(days=int(config.config_obj.get('GoogleDriveUploadAction', 'file_retention_days')))
+        file_list_len = 1
+        logger.debug(drive.GetAbout())
+        while file_list_len > 0:
+            file_list = drive.ListFile({'q': "properties has { key='source' and value='MotionNotify' and visibility='PRIVATE'} and modifiedDate<'"
+                    + retain_from_date.strftime("%Y-%m-%d") + "'"}).GetList()
 
-        file_list = drive.ListFile({'q': "'" + config.config_obj.get('GoogleDriveUploadAction', 'folder') + "' in parents and modifiedDate<'"
-+ retain_from_date.strftime("%Y-%m-%d") + "'", 'maxResults': 1000}).GetList()
-        print(file_list.__sizeof__())
-        for file1 in file_list:
-            logger.debug('GoogleDriveUploadAction Removing: title: %s, id: %s, createdDate: %s, parents: %s' % (file1['title'], file1['id'], file1['createdDate'], file1['parents']))
-            file1.Delete()
+            file_list_len = file_list.__len__()
+            logger.info("GoogleDriveCleanAction - removing " + file_list_len.__str__() + " files")
 
-
-
-
-
+            print(file_list.__len__())
+            for file1 in file_list:
+                logger.debug('GoogleDriveUploadAction Removing: title: %s, id: %s, createdDate: %s, parents: %s' % (file1['title'], file1['id'], file1['createdDate'], file1['parents']))
+                file1.Delete()

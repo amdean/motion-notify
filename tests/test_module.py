@@ -136,8 +136,8 @@ class MotionNotifyTestSuite(unittest.TestCase):
                                                          event_type_mod.EventType.on_event_start, 1234567890, 11, 'jpg')
         self.assertEqual(motion_test_event.get_mime_type(), "image/jpg")
 
-    def test_get_list_of_files(self):
-          google_drive_cleanup_action_mod.GoogleDriveCleanupAction.cleanup(self.config)
+    def test_google_drive_cleanup(self):
+           google_drive_cleanup_action_mod.GoogleDriveCleanupAction.cleanup(self.config)
 
     def test_upload_file(self):
         motion_test_event = motion_event_mod.MotionEvent('../resources/test.jpg',

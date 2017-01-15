@@ -123,7 +123,7 @@ class GoogleDriveUploadAction:
         # Create File in Date Folder
         gfile = drive.CreateFile({'title': motion_event.get_upload_filename(), 'mimeType': motion_event.get_mime_type(),
                                   "parents": [{"kind": "drive#fileLink", "id": folder['id']}],
-                                  "labels": [{"MotionNotify": True}]})
+                                  "properties": [{"key": "source", "value": "MotionNotify"}]})
         gfile.SetContentFile(motion_event.media_file)
         gfile.Upload()
         return gfile
