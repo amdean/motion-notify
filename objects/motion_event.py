@@ -20,6 +20,8 @@ class MotionEvent(object):
             return config.on_picture_save_event_action_list;
         elif self.event_type == event_type_mod.EventType.on_movie_end:
             return config.on_movie_end_event_action_list;
+        elif self.event_type == event_type_mod.EventType.on_cron_trigger:
+            return config.on_cron_trigger_action_list;
 
     def get_actions_for_event(self, config, is_system_active):
         list_of_event_actions = self.get_event_actions_for_event(config);

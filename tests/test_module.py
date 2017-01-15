@@ -35,6 +35,7 @@ class MotionNotifyTestSuite(unittest.TestCase):
         self.config.set_on_picture_save_event_action_list(
             "GoogleDriveUploadAction:always,SmtpEmailNotifyAction:if_active")
         self.config.set_on_movie_end_event_action_list("SmtpEmailNotifyAction:if_active")
+        self.config.set_on_cron_trigger_action_list("GoogleDriveCleanupAction:always")
         pass
 
     def test_get_event_action_from_config_entry(self):
@@ -50,6 +51,11 @@ class MotionNotifyTestSuite(unittest.TestCase):
         self.assertEqual(event_actions[1].action_name, "SmtpEmailNotifyAction")
         self.assertEqual(event_actions[1].trigger_rule, trigger_rule_mod.TriggerRule.if_active)
 
+        event_actions = self.config.on_cron_trigger_action_list
+        self.assertEqual(1, event_actions.__len__())
+        self.assertEqual(event_actions[0].action_name, "GoogleDriveCleanupAction")
+        self.assertEqual(event_actions[0].trigger_rule, trigger_rule_mod.TriggerRule.always)
+
     def test_motion_test_event_get_actions_for_event(self):
         motion_test_event = motion_event_mod.MotionEvent('', event_type_mod.EventType.on_event_start, 1234567890, 11,
                                                          'jpg')
@@ -60,6 +66,11 @@ class MotionNotifyTestSuite(unittest.TestCase):
                                                          'jpg')
         event_actions = motion_test_event.get_event_actions_for_event(self.config)
         self.assertEqual(2, event_actions.__len__())
+
+        motion_test_event = motion_event_mod.MotionEvent('', event_type_mod.EventType.on_cron_trigger, 1234567890, 11,
+                                                         'jpg')
+        event_actions = motion_test_event.get_event_actions_for_event(self.config)
+        self.assertEqual(1, event_actions.__len__())
 
     def test_get_actions_for_event(self):
         motion_test_event = motion_event_mod.MotionEvent('', event_type_mod.EventType.on_event_start, 1234567890, 11,
@@ -135,9 +146,6 @@ class MotionNotifyTestSuite(unittest.TestCase):
         motion_test_event = motion_event_mod.MotionEvent('/tmp/' + uuid.uuid1().__str__() + '.jpg',
                                                          event_type_mod.EventType.on_event_start, 1234567890, 11, 'jpg')
         self.assertEqual(motion_test_event.get_mime_type(), "image/jpg")
-
-    def test_google_drive_cleanup(self):
-           google_drive_cleanup_action_mod.GoogleDriveCleanupAction.cleanup(self.config)
 
     def test_upload_file(self):
         motion_test_event = motion_event_mod.MotionEvent('../resources/test.jpg',

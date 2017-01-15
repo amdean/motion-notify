@@ -72,7 +72,7 @@ class MotionNotify:
             klass = utils_mod.Utils.reflect_class_from_classname('actions', action)
             if self.motion_event_obj.event_type == event_type_mod.EventType.on_event_start:
                 klass.do_event_start_action(self.config_obj, motion_event_obj)
-            elif self.motion_event_obj.event_type == event_type_mod.EventType.on_picture_save:
+            elif self.motion_event_obj.event_type == event_type_mod.EventType.on_picture_save or self.motion_event_obj.event_type == event_type_mod.EventType.on_cron_trigger:
                 klass.do_action(self.config_obj, motion_event_obj)
             elif self.motion_event_obj.event_type == event_type_mod.EventType.on_movie_end:
                 klass.do_event_end_action(self.config_obj, motion_event_obj)
@@ -92,7 +92,7 @@ if __name__ == '__main__':
 
         if len(sys.argv) < 6:
             exit(
-                'Motion Notify - Usage: motion-notify.py {config-file-path} {media-file-path} {event-type on_event_start, on_picture_save or on_movie_end} {timestamp} {event_id} {file_type} ')
+                'Motion Notify - Usage: motion-notify.py {config-file-path} {media-file-path} {event-type on_event_start, on_picture_save, on_movie_end or on_cron_trigger} {timestamp} {event_id} {file_type} ')
 
         cfg_path = sys.argv[1]
         if not os.path.exists(cfg_path):

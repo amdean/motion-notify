@@ -6,8 +6,10 @@ import logging.handlers
 
 logger = logging.getLogger('MotionNotify')
 
-
 class GoogleDriveCleanupAction:
+    """This action removes MotionNotify files from Google Drive which are older than the retention period in the config file.
+    Note that this only removes files which have been created with a Google Drive file property of source:MotionNotify
+    This property was added to the GoogleDriveUploadAction in January 2016 (property is not visible in the Google Drive UI). """
     @staticmethod
     def do_event_start_action(config, motion_event):
         logger.info("Motionevent_id:" + motion_event.event_id + " GoogleDriveCleanupAction event start")
