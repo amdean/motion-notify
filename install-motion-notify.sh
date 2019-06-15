@@ -7,11 +7,13 @@
 
 # Update APT and install dependencies
 apt-get update
+apt-get install python-twisted-web
 apt-get install python-pip
 pip install --upgrade PyDrive
 pip install --upgrade enum34
 pip install --upgrade oauth2client
 pip install google-api-python-client --upgrade --ignore-installed six
+pip install requests
 apt-get install python-openssl
 
 # Install git and clone motion-notify into the destination directory
@@ -19,6 +21,9 @@ apt-get install git
 git clone https://github.com/amdean/motion-notify.git /etc/motion-notify
 chown -R motion.motion /etc/motion-notify
 chmod +x /etc/motion-notify/motion-notify.py
+chmod +x /etc/motion-notify/utils/ssdp_server.py
+mv /etc/motion-notify/utils/startup-script/ssdp /etc/init.d/ssdp
+chmod +x /etc/init.d/ssdp
 
 # Create the log files and lock files and set ownership and permissions
 touch /var/tmp/motion-notify.log

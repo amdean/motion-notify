@@ -207,7 +207,7 @@ def main():
     """Main function to handle use from command line"""
 
     arg_proc = argparse.ArgumentParser(description='Provides camera active/inactive status to a SmartThings hub')
-    arg_proc.add_argument('--httpport', dest='http_port', help='HTTP port number', default=8080, type=int)
+    arg_proc.add_argument('--httpport', dest='http_port', help='HTTP port number', default=8082, type=int)
     arg_proc.add_argument('--deviceindex', dest='device_index', help='Device index', default=1, type=int)
     options = arg_proc.parse_args()
 
